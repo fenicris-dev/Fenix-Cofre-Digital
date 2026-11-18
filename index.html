@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213d">
+<title>Cofre Digital</title>
+<style>
+:root{--bg:#f3f5fa;--card:#fff;--ink:#1b2540;--mut:#5d6785;--navy:#14213d;--pri:#2b59c3;--acc:#f59f00;--dan:#c92a2a;--ok:#2b8a3e;--bd:#d9deec;--r:12px}
+*{box-sizing:border-box}
+html,body{margin:0;overscroll-behavior-y:none;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+h1,h2,h3{margin:0}
+.top{background:var(--navy);color:#fff;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));position:sticky;top:0;z-index:20}
+.brand{display:flex;gap:10px;align-items:center}.brand .logo{font-size:28px}.brand h1{font-size:18px}.brand small{opacity:.8}
+.hact{display:flex;gap:8px}
+.tabs{display:flex;gap:4px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--bd);padding:6px 10px;position:sticky;top:58px;z-index:15}
+.tabs button{border:0;background:none;padding:10px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;color:var(--mut);min-height:44px}
+.tabs button[aria-current=page]{background:var(--navy);color:#fff}
+main{max-width:980px;margin:0 auto;padding:14px 14px 110px}
+footer{text-align:center;color:var(--mut);font-size:13px;padding-bottom:30px}
+.btn{border:1px solid var(--bd);background:#fff;border-radius:10px;padding:9px 14px;min-height:44px;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.danger{background:var(--dan);border-color:var(--dan);color:#fff}
+.btn.sm{min-height:36px;padding:5px 10px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.top .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}.top .btn.primary{background:var(--acc);border-color:var(--acc);color:#14213d}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.card h2{font-size:18px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.catcard{text-align:left;border:1px solid var(--bd);background:#fff;border-radius:var(--r);padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.catcard b{font-size:15px}.catcard small{color:var(--mut)}.catcard .n{font-size:13px;color:var(--pri);font-weight:700;margin-top:4px}
+label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:14px}
+label small{font-weight:400;color:var(--mut)}
+input,select{border:1px solid var(--bd);border-radius:10px;padding:10px;min-height:44px;background:#fff;width:100%}
+input[type=checkbox],input[type=radio]{width:22px;height:22px;min-height:0;accent-color:var(--pri)}
+.form{display:flex;flex-direction:column;gap:12px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row.end{justify-content:flex-end}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.doc{display:grid;grid-template-columns:auto 56px 1fr;gap:10px;align-items:center;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:10px}
+.doc.nosel{grid-template-columns:56px 1fr}
+.doc .info{min-width:0}.doc .info strong{display:block;overflow-wrap:anywhere}.doc .info span{color:var(--mut);font-size:13px}
+.doc .acts{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.thumb{width:56px;height:56px;border-radius:8px;background:#e9edf8;display:grid;place-items:center;overflow:hidden;font-size:11px;font-weight:700;color:var(--pri)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.empty{color:var(--mut);text-align:center;padding:24px;background:#fff;border:1px dashed var(--bd);border-radius:var(--r)}
+.selbar{position:fixed;left:0;right:0;bottom:0;background:var(--navy);color:#fff;padding:10px 14px;padding-bottom:max(10px,env(safe-area-inset-bottom));display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;z-index:18}
+.selbar .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}.selbar .btn.primary{background:var(--acc);color:#14213d;border-color:var(--acc)}.selbar .btn.danger{background:var(--dan);border-color:var(--dan)}
+.overlay{position:fixed;inset:0;background:rgba(10,16,35,.6);display:grid;place-items:center;z-index:50;padding:12px;overscroll-behavior:contain}
+.dlg{background:#fff;border-radius:16px;width:min(520px,100%);max-height:92vh;display:flex;flex-direction:column}
+.dlg.wide{width:min(860px,100%)}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--bd);gap:10px}
+.dh h2{font-size:17px;overflow-wrap:anywhere}
+.x{border:0;background:#eef1f9;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;flex:none}
+.db{padding:14px;overflow:auto;overscroll-behavior:contain}
+.pv{width:100%;height:65vh;border:1px solid var(--bd);border-radius:8px}.pv.img{height:auto;max-height:70vh;object-fit:contain}
+.drop{position:relative;border:2px dashed var(--pri);border-radius:var(--r);padding:22px;text-align:center;background:#f2f6ff;cursor:pointer;font-weight:600}
+.drop input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.drop.over{background:#dde8ff}
+.mini{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.mini li{display:flex;gap:8px;align-items:center;font-size:14px;background:#f6f8fd;border-radius:8px;padding:6px 8px}
+.mini li span{flex:1;overflow-wrap:anywhere}
+.mini .thumb{width:36px;height:36px}
+fieldset{border:1px solid var(--bd);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.inline{flex-direction:row;align-items:center;gap:10px}
+.note{color:var(--mut);font-size:13px;margin:0}
+.wm{background:#fff8e6;border:1px solid #ffe0a0;border-radius:8px;padding:8px;font-size:14px;overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);vertical-align:top}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef1f9;font-size:12px;font-weight:700}
+details{background:#fff;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;padding:8px 12px}
+details details{margin:8px 0 0 8px}summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#14213d;color:#fff;padding:10px 16px;border-radius:999px;z-index:99;max-width:92vw;opacity:0;pointer-events:none;transition:.25s;text-align:center}
+#toast.show{opacity:1}#toast.err{background:var(--dan)}#toast.ok{background:var(--ok)}
+.auth{max-width:440px;margin:6vh auto;padding:0 14px}.auth .logo{font-size:48px;text-align:center}.auth h1{text-align:center;margin-bottom:4px}.auth p.sub{text-align:center;color:var(--mut);margin:0 0 16px}
+.err{color:var(--dan);font-weight:600;min-height:20px;margin:0}
+.lim li{margin-bottom:4px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modals"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="restf" accept=".zip" hidden>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+'use strict';
+const APP_VERSION='1.0', MAX=25*1024*1024, IDLE=10*60*1000;
+const PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const DEFAULT_CATS=[['Identificação','RG, CPF, CNH, título de eleitor, passaporte'],['Certidões',''],['Comprovantes de residência',''],['Documentos de trabalho e RH',''],['Saúde',''],['Educação',''],['Bancários e financeiros',''],['Contas e recibos',''],['Notas fiscais',''],['Impostos',''],['Veículos',''],['Imóveis',''],['Garantias e manuais',''],['Contratos',''],['Outros','']];
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'x';
+const camel=s=>norm(s).split(/[^a-z0-9]+/).filter(Boolean).map(w=>w[0].toUpperCase()+w.slice(1)).join('')||'X';
+const safeName=s=>String(s).replace(/[\\/:*?"<>|]/g,'').trim().replace(/\s+/g,'_')||'documento';
+const pad=n=>String(n).padStart(2,'0');
+const isoOf=ts=>{const d=new Date(ts);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const todayISO=()=>isoOf(Date.now());
+const fmtDate=i=>i?i.split('-').reverse().join('/'):'—';
+const fmtTs=t=>new Date(t).toLocaleString('pt-BR');
+const fmtSize=b=>b<1048576?(b/1024).toFixed(0)+' KB':(b/1048576).toFixed(1).replace('.',',')+' MB';
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=b=>{const u=new Uint8Array(b);let s='';u.forEach(x=>s+=String.fromCharCode(x));return btoa(s)};
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const cmp=(a,b)=>a.localeCompare(b,'pt-BR',{sensitivity:'base'});
+
+/* ---------- estado ---------- */
+let db,KEY=null,idleT=null,fails=0;
+const S={user:null,cats:[],docs:[],view:'home',sel:new Set(),authMode:null,filters:{q:'',cat:'',fmt:'',from:'',to:'',dt:'emissao'}};
+const thumbCache=new Map();
+
+/* ---------- toast / modal ---------- */
+let toastT;
+function toast(msg,type=''){const t=$('#toast');t.textContent=msg;t.className='show '+type;clearTimeout(toastT);toastT=setTimeout(()=>t.className='',3500)}
+function modal(title,html,{onClose,wide}={}){
+  const m=document.createElement('div');m.className='overlay';
+  m.innerHTML=`<div class="dlg ${wide?'wide':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="dh"><h2>${esc(title)}</h2><button type="button" class="x" aria-label="Fechar" data-close>✕</button></div><div class="db">${html}</div></div>`;
+  m.close=()=>{if(m._c)return;m._c=true;m.remove();onClose&&onClose()};
+  m.querySelector('[data-close]').onclick=()=>m.close();
+  $('#modals').append(m);
+  (m.querySelector('input:not([type=file]),select,button:not(.x)'))?.focus();
+  return m;
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const ms=document.querySelectorAll('.overlay');ms[ms.length-1]?.close()}});
+function confirmBox(msg,ok='Excluir',danger=true){
+  return new Promise(res=>{let done=false;const fin=v=>{if(!done){done=true;res(v)}};
+    const m=modal('Confirmação',`<p>${esc(msg)}</p><div class="row end"><button type="button" class="btn" data-no>Cancelar</button><button type="button" class="btn ${danger?'danger':'primary'}" data-yes>${esc(ok)}</button></div>`,{onClose:()=>fin(false)});
+    m.querySelector('[data-no]').onclick=()=>m.close();
+    m.querySelector('[data-yes]').onclick=()=>{fin(true);m.close()};
+  });
+}
+function promptBox(title,label,value=''){
+  return new Promise(res=>{let done=false;const fin=v=>{if(!done){done=true;res(v)}};
+    const m=modal(title,`<form class="form"><label>${esc(label)}<input id="pbv" maxlength="120" required value="${esc(value)}"></label><div class="row end"><button type="button" class="btn" data-no>Cancelar</button><button class="btn primary">Salvar</button></div></form>`,{onClose:()=>fin(null)});
+    m.querySelector('[data-no]').onclick=()=>m.close();
+    m.querySelector('form').onsubmit=e=>{e.preventDefault();const v=$('#pbv',m).value.trim();if(!v)return;fin(v);m.close()};
+  });
+}
+
+/* ---------- IndexedDB ---------- */
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('fenix_cofre_digital',1);
+  r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('users',{keyPath:'id'});
+    d.createObjectStore('docs',{keyPath:'id'}).createIndex('userId','userId');
+    d.createObjectStore('cats',{keyPath:'id'}).createIndex('userId','userId');
+    d.createObjectStore('blobs',{keyPath:'id'});
+    d.createObjectStore('log',{keyPath:'id'}).createIndex('userId','userId');};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+const req=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const dbGet=(s,k)=>req(db.transaction(s).objectStore(s).get(k));
+const dbPut=(s,v)=>req(db.transaction(s,'readwrite').objectStore(s).put(v));
+const dbDel=(s,k)=>req(db.transaction(s,'readwrite').objectStore(s).delete(k));
+const dbAll=s=>req(db.transaction(s).objectStore(s).getAll());
+const dbByUser=(s,u)=>req(db.transaction(s).objectStore(s).index('userId').getAll(u));
+
+/* ---------- criptografia ---------- */
+async function deriveKey(pw,salt){
+  const base=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encryptBuf(buf){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},KEY,buf);const o=new Uint8Array(12+ct.byteLength);o.set(iv);o.set(new Uint8Array(ct),12);return o.buffer}
+async function decryptBuf(buf){const u=new Uint8Array(buf);return crypto.subtle.decrypt({name:'AES-GCM',iv:u.slice(0,12)},KEY,u.slice(12))}
+async function sha256(buf){return [...new Uint8Array(await crypto.subtle.digest('SHA-256',buf))].map(b=>b.toString(16).padStart(2,'0')).join('')}
+
+/* ---------- log ---------- */
+async function addLog(action,detail=''){if(!S.user)return;await dbPut('log',{id:uid(),userId:S.user.id,ts:Date.now(),action,detail})}
+
+/* ---------- dados ---------- */
+const catName=id=>S.cats.find(c=>c.id===id)?.name||'Outros';
+const sortedCats=()=>[...S.cats].sort((a,b)=>cmp(a.name,b.name));
+const docById=id=>S.docs.find(d=>d.id===id);
+const docDate=d=>d.issueDate||isoOf(d.createdAt);
+async function loadData(){S.cats=await dbByUser('cats',S.user.id);S.docs=await dbByUser('docs',S.user.id);S.sel=new Set([...S.sel].filter(id=>S.docs.some(d=>d.id===id)))}
+async function readDoc(id){return decryptBuf((await dbGet('blobs',id)).data)}
+async function thumbUrl(id){
+  if(thumbCache.has(id))return thumbCache.get(id);
+  const r=await dbGet('blobs','t_'+id);if(!r){return null}
+  try{const u=URL.createObjectURL(new Blob([await decryptBuf(r.data)],{type:'image/jpeg'}));thumbCache.set(id,u);return u}catch{return null}
+}
+function loadThumbs(root=document){root.querySelectorAll('[data-thumb]').forEach(async n=>{const u=await thumbUrl(n.dataset.thumb);if(u&&n.isConnected)n.innerHTML=`<img alt="" src="${u}">`})}
+function extOf(f){const e=(f.name.split('.').pop()||'').toLowerCase();if(e==='pdf'||f.type==='application/pdf')return'pdf';if(['jpg','jpeg'].includes(e)||f.type==='image/jpeg')return'jpg';if(e==='png'||f.type==='image/png')return'png';return null}
+const mimeOf=e=>e==='pdf'?'application/pdf':e==='jpg'?'image/jpeg':'image/png';
+const stripExt=n=>n.replace(/\.[^.]+$/,'');
+
+/* ---------- sessão ---------- */
+function resetIdle(){clearTimeout(idleT);if(S.user)idleT=setTimeout(()=>{lock();toast('Cofre bloqueado por inatividade.')},IDLE)}
+['click','keydown','touchstart','pointerdown'].forEach(ev=>document.addEventListener(ev,resetIdle,{passive:true}));
+async function enterSession(user){S.user=user;S.view='home';S.sel=new Set();await loadData();await addLog('acesso','Entrada no cofre');render();resetIdle()}
+function lock(){document.querySelectorAll('.overlay').forEach(m=>m.close());thumbCache.forEach(u=>URL.revokeObjectURL(u));thumbCache.clear();KEY=null;S.user=null;S.docs=[];S.cats=[];S.sel=new Set();clearTimeout(idleT);render()}
+
+/* ---------- autenticação ---------- */
+async function renderAuth(){
+  const users=(await dbAll('users')).sort((a,b)=>cmp(a.name,b.name));
+  const mode=users.length?(S.authMode||'login'):'create';
+  const head=`<div class="auth"><div class="logo">🔐</div><h1>Cofre Digital</h1><p class="sub">Seus documentos, privados e organizados.</p><div class="card">`;
+  const foot=`</div><p class="note" style="text-align:center">v${APP_VERSION} • Os arquivos ficam criptografados neste aparelho.</p></div>`;
+  let body;
+  if(mode==='login'){
+    body=`<form id="loginf" class="form"><label>Usuário<select id="lu">${users.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('')}</select></label><label>Senha<input id="lp" type="password" autocomplete="current-password" required></label><p class="err" id="autherr" role="alert"></p><button class="btn primary">Entrar</button><button type="button" class="btn" data-act="authmode" data-mode="create">Criar novo usuário</button><button type="button" class="btn" data-act="restore">Restaurar backup</button></form>`;
+  }else{
+    body=`<form id="createf" class="form"><label>Nome do usuário<input id="cn" maxlength="40" required autocomplete="username"></label><label>Senha <small>(mínimo 8 caracteres)</small><input id="cp" type="password" minlength="8" required autocomplete="new-password"></label><label>Repita a senha<input id="cp2" type="password" minlength="8" required autocomplete="new-password"></label><p class="note"><b>Atenção:</b> a senha criptografa seus arquivos e <b>não pode ser recuperada</b>. Se for esquecida, os documentos não poderão ser abertos.</p><p class="err" id="autherr" role="alert"></p><button class="btn primary">Criar e entrar</button>${users.length?`<button type="button" class="btn" data-act="authmode" data-mode="login">Já tenho usuário</button>`:`<button type="button" class="btn" data-act="restore">Restaurar backup</button>`}</form>`;
+  }
+  $('#app').innerHTML=head+body+foot;
+}
+document.addEventListener('submit',async e=>{
+  if(e.target.id==='loginf'){e.preventDefault();const err=$('#autherr');err.textContent='';
+    const user=await dbGet('users',$('#lu').value);
+    try{
+      if(fails)await sleep(Math.min(fails*600,5000));
+      KEY=await deriveKey($('#lp').value,user.salt);
+      if(dec.decode(await decryptBuf(user.verifier))!=='cofre-ok')throw 0;
+      fails=0;await enterSession(user);
+    }catch{KEY=null;fails++;err.textContent='Senha incorreta.'}
+  }
+  if(e.target.id==='createf'){e.preventDefault();const err=$('#autherr');err.textContent='';
+    const name=$('#cn').value.trim(),p=$('#cp').value;
+    if(p!==$('#cp2').value){err.textContent='As senhas não conferem.';return}
+    const users=await dbAll('users');
+    if(users.some(u=>norm(u.name)===norm(name))){err.textContent='Já existe um usuário com esse nome.';return}
+    const salt=crypto.getRandomValues(new Uint8Array(16));
+    KEY=await deriveKey(p,salt);
+    const user={id:uid(),name,salt,verifier:await encryptBuf(enc.encode('cofre-ok')),created:Date.now()};
+    await dbPut('users',user);
+    for(const [n,h] of DEFAULT_CATS)await dbPut('cats',{id:uid(),userId:user.id,name:n,hint:h});
+    await enterSession(user);
+  }
+});
+
+/* ---------- render principal ---------- */
+const TABS=[['home','Início'],['docs','Documentos'],['folders','Pastas'],['log','Registro'],['settings','Ajustes']];
+function render(){
+  if(!S.user){renderAuth();return}
+  $('#app').innerHTML=`<header class="top"><div class="brand"><span class="logo" aria-hidden="true">🔐</span><div><h1>Cofre Digital</h1><small>v${APP_VERSION} • ${esc(S.user.name)}</small></div></div><div class="hact"><button class="btn primary" data-act="upload">＋ Enviar</button><button class="btn" data-act="lock">Bloquear</button></div></header>
+  <nav class="tabs" aria-label="Seções">${TABS.map(([k,l])=>`<button data-act="tab" data-tab="${k}" ${S.view===k?'aria-current="page"':''}>${l}</button>`).join('')}</nav>
+  <main id="view" tabindex="-1"></main><footer>Cofre Digital v${APP_VERSION}</footer>`;
+  renderView();
+}
+function renderView(){const v=$('#view');if(!v)return;({home:viewHome,docs:viewDocs,folders:viewFolders,log:viewLog,settings:viewSettings})[S.view](v);
+  document.querySelectorAll('.tabs button').forEach(b=>b.toggleAttribute('aria-current',b.dataset.tab===S.view));
+  document.querySelectorAll('.tabs button').forEach(b=>{if(b.dataset.tab===S.view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});}
+function go(view){S.view=view;renderView();window.scrollTo(0,0)}
+
+/* ---------- linhas de documento ---------- */
+function rowHTML(d,withSel){
+  const thumb=d.ext==='pdf'?'PDF':'…';
+  return `<li class="doc ${withSel?'':'nosel'}">${withSel?`<label class="inline"><input type="checkbox" data-sel="${d.id}" ${S.sel.has(d.id)?'checked':''} aria-label="Selecionar ${esc(d.name)}"></label>`:''}
+  <div class="thumb" ${d.ext!=='pdf'?`data-thumb="${d.id}"`:''}>${thumb}</div>
+  <div class="info"><strong>${esc(d.name)}</strong><span>${esc(catName(d.categoryId))} • Emissão: ${fmtDate(d.issueDate)} • ${d.ext.toUpperCase()} • ${fmtSize(d.size)}</span></div>
+  <div class="acts"><button class="btn sm" data-act="view" data-id="${d.id}">Ver</button><button class="btn sm" data-act="edit" data-id="${d.id}">Renomear / editar</button><button class="btn sm" data-act="download" data-id="${d.id}">Baixar</button><button class="btn sm" data-act="delete" data-id="${d.id}">Excluir</button></div></li>`;
+}
+
+/* ---------- Início ---------- */
+function viewHome(v){
+  const recent=[...S.docs].sort((a,b)=>b.createdAt-a.createdAt).slice(0,8).sort((a,b)=>cmp(a.name,b.name));
+  v.innerHTML=`<form class="card" id="homesearch" role="search"><label>Buscar documentos<div class="row" style="flex-wrap:nowrap"><input type="search" id="hq" placeholder="Nome ou categoria"><button class="btn primary">Buscar</button></div></label></form>
+  <section class="card"><h2>Categorias</h2><div class="grid">${sortedCats().map(c=>`<button class="catcard" data-act="catopen" data-id="${c.id}"><b>${esc(c.name)}</b>${c.hint?`<small>${esc(c.hint)}</small>`:''}<span class="n">${S.docs.filter(d=>d.categoryId===c.id).length} documento(s)</span></button>`).join('')}</div></section>
+  <section class="card"><h2>Documentos recentes</h2><p class="note" style="margin-bottom:8px">Os 8 últimos enviados, em ordem alfabética.</p>${recent.length?`<ul class="list">${recent.map(d=>rowHTML(d,false)).join('')}</ul>`:`<div class="empty">Nenhum documento ainda. Toque em “＋ Enviar” para começar.</div>`}</section>`;
+  loadThumbs(v);
+}
+document.addEventListener('submit',e=>{if(e.target.id==='homesearch'){e.preventDefault();S.filters={q:$('#hq').value,cat:'',fmt:'',from:'',to:'',dt:'emissao'};go('docs')}});
+
+/* ---------- Documentos ---------- */
+function filtered(){
+  const f=S.filters,q=norm(f.q);
+  return S.docs.filter(d=>{
+    if(q&&!norm(d.name+' '+catName(d.categoryId)+' '+d.origName).includes(q))return false;
+    if(f.cat&&d.categoryId!==f.cat)return false;
+    if(f.fmt&&d.ext!==f.fmt)return false;
+    const dt=f.dt==='emissao'?d.issueDate:isoOf(d.createdAt);
+    if((f.from||f.to)&&!dt)return false;
+    if(f.from&&dt<f.from)return false;
+    if(f.to&&dt>f.to)return false;
+    return true;
+  }).sort((a,b)=>cmp(a.name,b.name));
+}
+function viewDocs(v){
+  const f=S.filters;
+  v.innerHTML=`<div class="card filters"><label>Buscar<input type="search" id="fq" value="${esc(f.q)}"></label>
+  <label>Categoria<select id="fcat"><option value="">Todas</option>${sortedCats().map(c=>`<option value="${c.id}" ${f.cat===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>
+  <label>Formato<select id="ffmt"><option value="">Todos</option>${['pdf','jpg','png'].map(x=>`<option value="${x}" ${f.fmt===x?'selected':''}>${x.toUpperCase()}</option>`).join('')}</select></label>
+  <label>Período por<select id="fdt"><option value="emissao" ${f.dt==='emissao'?'selected':''}>Data de emissão</option><option value="envio" ${f.dt==='envio'?'selected':''}>Data de envio</option></select></label>
+  <label>De<input type="date" id="ffrom" value="${f.from}"></label><label>Até<input type="date" id="fto" value="${f.to}"></label>
+  <button class="btn" data-act="clearf">Limpar filtros</button></div>
+  <p class="note" id="count" style="margin-bottom:8px"></p><ul class="list" id="doclist"></ul>
+  <div class="selbar" id="selbar"></div>`;
+  const upd=()=>{S.filters={q:$('#fq').value,cat:$('#fcat').value,fmt:$('#ffmt').value,dt:$('#fdt').value,from:$('#ffrom').value,to:$('#fto').value};renderList()};
+  v.querySelectorAll('.filters input,.filters select').forEach(i=>i.addEventListener('input',upd));
+  renderList();
+}
+function renderList(){
+  const list=filtered();
+  $('#count').textContent=`${list.length} de ${S.docs.length} documento(s)`;
+  $('#doclist').innerHTML=list.length?list.map(d=>rowHTML(d,true)).join(''):`<li class="empty">Nenhum documento encontrado.</li>`;
+  loadThumbs($('#doclist'));updateSelBar(list);
+}
+function updateSelBar(list=filtered()){
+  const b=$('#selbar');if(!b)return;const n=S.sel.size;
+  b.innerHTML=`<b>${n} selecionado(s)</b><button class="btn sm" data-act="selall">Selecionar todos (${list.length})</button><button class="btn sm" data-act="selclear" ${n?'':'disabled'}>Limpar</button><button class="btn sm primary" data-act="export" ${n?'':'disabled'}>Exportar ZIP</button><button class="btn sm danger" data-act="delsel" ${n?'':'disabled'}>Excluir</button>`;
+}
+document.addEventListener('change',e=>{const id=e.target.dataset?.sel;if(id){e.target.checked?S.sel.add(id):S.sel.delete(id);updateSelBar()}});
+
+/* ---------- Pastas ---------- */
+function viewFolders(v){
+  const g={};
+  S.docs.forEach(d=>{const iso=docDate(d);const y=iso.slice(0,4);const folder=`${iso.slice(5,7)}_${camel(catName(d.categoryId))}_${camel(S.user.name)}`;((g[y]??={})[folder]??=[]).push(d)});
+  const years=Object.keys(g).sort();
+  v.innerHTML=`<div class="card"><h2>Pastas</h2><p class="note" style="margin-bottom:10px">Estrutura: /AAAA/MM_TipoDeDocumento_Usuario/ (usa a data de emissão; sem ela, a data de envio).</p>
+  ${years.length?years.map(y=>`<details open><summary>/${y}/</summary>${Object.keys(g[y]).sort(cmp).map(f=>`<details><summary>${esc(f)}/ <span class="tag" style="margin-left:8px">${g[y][f].length}</span></summary><ul class="mini" style="margin-top:8px">${g[y][f].sort((a,b)=>cmp(a.name,b.name)).map(d=>`<li><span>${esc(d.name)}.${d.ext}</span><button class="btn sm" data-act="view" data-id="${d.id}">Ver</button></li>`).join('')}</ul></details>`).join('')}</details>`).join(''):`<div class="empty">Nenhuma pasta ainda.</div>`}</div>`;
+}
+
+/* ---------- Registro ---------- */
+async function viewLog(v){
+  const logs=(await dbByUser('log',S.user.id)).sort((a,b)=>b.ts-a.ts).slice(0,300);
+  v.innerHTML=`<div class="card"><h2>Registro de atividades</h2><p class="note" style="margin-bottom:8px">Envios, exportações, exclusões e outras ações (últimas 300).</p>${logs.length?`<div style="overflow:auto"><table><thead><tr><th>Quando</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody>${logs.map(l=>`<tr><td>${fmtTs(l.ts)}</td><td><span class="tag">${esc(l.action)}</span></td><td>${esc(l.detail)}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">Sem atividades.</div>`}</div>`;
+}
+
+/* ---------- Ajustes ---------- */
+function viewSettings(v){
+  v.innerHTML=`<section class="card"><h2>Categorias</h2><form id="addcatf" class="row" style="flex-wrap:nowrap"><input id="newcat" placeholder="Nova categoria" maxlength="50" required aria-label="Nova categoria"><button class="btn primary">Adicionar</button></form>
+  <ul class="mini" style="margin-top:10px">${sortedCats().map(c=>`<li><span>${esc(c.name)} <small>(${S.docs.filter(d=>d.categoryId===c.id).length})</small></span><button class="btn sm" data-act="rencat" data-id="${c.id}">Renomear</button><button class="btn sm" data-act="delcat" data-id="${c.id}">Excluir</button></li>`).join('')}</ul></section>
+  <section class="card"><h2>Backup e recuperação</h2><p class="note" style="margin-bottom:10px">O backup (.zip) contém seus arquivos já criptografados. Para restaurar é preciso a senha original.</p><div class="row"><button class="btn primary" data-act="backup">Baixar backup</button><button class="btn" data-act="restore">Restaurar backup</button></div></section>
+  <section class="card"><h2>Segurança</h2><p class="note">Bloqueio automático após 10 minutos sem uso. Arquivos protegidos com AES-256-GCM; chave derivada da sua senha (PBKDF2).</p><div class="row" style="margin-top:10px"><button class="btn" data-act="lock">Bloquear agora</button></div></section>
+  <section class="card"><h2>Apagar todos os dados</h2><p class="note" style="margin-bottom:10px">Remove documentos, categorias, registros e a conta <b>${esc(S.user.name)}</b> deste aparelho. Não há como desfazer.</p><button class="btn danger" data-act="erase">Apagar todos os dados</button></section>
+  <section class="card lim"><h2>Sobre esta versão (v${APP_VERSION})</h2><h3 style="font-size:15px">Implementado</h3><ul><li>Envio de PDF, JPG e PNG com categoria, nome e data de emissão; detecção de duplicados.</li><li>Pastas virtuais /AAAA/MM_Tipo_Usuario/, busca, filtros, prévia, renomear, baixar e excluir (com confirmação).</li><li>Exportação em ZIP (original, PDF, imagem ou ambos) com marca-d’água opcional (data da exportação + finalidade) só nas cópias.</li><li>Usuários com senha, criptografia dos arquivos, registro de ações, backup e restauração, categorias personalizadas.</li></ul>
+  <h3 style="font-size:15px;margin-top:10px">Limitações</h3><ul><li>Os dados ficam só neste navegador/aparelho (IndexedDB); não há nuvem nem sincronização. Limpar os dados do navegador apaga o cofre — faça backups.</li><li>Senha esquecida = documentos irrecuperáveis. Não há troca de senha nesta versão.</li><li>Nomes, categorias e datas dos documentos não são criptografados; o conteúdo dos arquivos é.</li><li>Conversão PDF→imagem e a marca-d’água usam bibliotecas carregadas da internet (JSZip, pdf-lib, pdf.js); sem conexão, a exportação pode falhar.</li><li>PDFs protegidos por senha não podem ser marcados/convertidos. Limite de 25 MB por arquivo.</li><li>Segurança total depende também da proteção do aparelho; isto não substitui um servidor com autenticação.</li></ul></section>`;
+}
+document.addEventListener('submit',async e=>{
+  if(e.target.id==='addcatf'){e.preventDefault();const n=$('#newcat').value.trim();
+    if(S.cats.some(c=>norm(c.name)===norm(n))){toast('Essa categoria já existe.','err');return}
+    await dbPut('cats',{id:uid(),userId:S.user.id,name:n,hint:''});await loadData();await addLog('categoria',`Criada: ${n}`);renderView();toast('Categoria adicionada.','ok')}
+});
+
+/* ---------- Upload ---------- */
+function openUpload(){
+  const cats=sortedCats();
+  const m=modal('Enviar documentos',`<form id="upf" class="form"><label class="drop" id="drop"><input type="file" id="upfiles" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"><span>Toque para escolher ou arraste arquivos<br><small>PDF, JPG ou PNG • até 25 MB cada</small></span></label><ul id="uplist" class="mini"></ul>
+  <label>Categoria<select id="upcat" required>${cats.map(c=>`<option value="${c.id}" ${S.filters.cat===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>
+  <label>Nome do documento <small>(opcional; com vários arquivos, vale o nome de cada arquivo)</small><input id="upname" maxlength="120"></label>
+  <label>Data de emissão <small>(opcional)</small><input type="date" id="update"></label>
+  <div class="row end"><button type="button" class="btn" data-no>Cancelar</button><button class="btn primary" id="upgo">Enviar</button></div></form>`);
+  const fi=$('#upfiles',m);
+  const showList=()=>{const fs=[...fi.files];$('#uplist',m).innerHTML=fs.map(f=>`<li><span>${esc(f.name)} (${fmtSize(f.size)})</span></li>`).join('');$('#upname',m).disabled=fs.length>1;if(fs.length===1&&!$('#upname',m).value)$('#upname',m).value=stripExt(fs[0].name)};
+  fi.onchange=showList;
+  const drop=$('#drop',m);
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+  drop.addEventListener('drop',e=>{fi.files=e.dataTransfer.files;showList()});
+  $('[data-no]',m).onclick=()=>m.close();
+  $('#upf',m).onsubmit=async e=>{e.preventDefault();
+    const files=[...fi.files];if(!files.length){toast('Escolha ao menos um arquivo.','err');return}
+    $('#upgo',m).disabled=true;$('#upgo',m).textContent='Enviando…';
+    const n=await addFiles(files,$('#upcat',m).value,$('#update',m).value,$('#upname',m).value.trim());
+    m.close();if(n){toast(`${n} documento(s) guardado(s).`,'ok');renderView()}
+  };
+}
+async function makeThumb(buf,mime){
+  try{const bmp=await createImageBitmap(new Blob([buf],{type:mime}));const s=Math.min(1,160/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas');c.width=Math.max(1,Math.round(bmp.width*s));c.height=Math.max(1,Math.round(bmp.height*s));
+    const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bmp,0,0,c.width,c.height);
+    const b=await canvasBlob(c,'image/jpeg',.7);return b.arrayBuffer()}catch{return null}
+}
+async function addFiles(files,catId,issue,custom){
+  let ok=0;
+  for(const f of files){
+    const ext=extOf(f);
+    if(!ext){toast(`"${f.name}": formato não aceito.`,'err');continue}
+    if(f.size>MAX){toast(`"${f.name}" passa de 25 MB.`,'err');continue}
+    const buf=await f.arrayBuffer();const hash=await sha256(buf);
+    const dup=S.docs.find(d=>d.hash===hash);
+    if(dup&&!(await confirmBox(`"${f.name}" parece idêntico a "${dup.name}", que já está no cofre. Enviar mesmo assim?`,'Enviar mesmo assim',false)))continue;
+    const id=uid();const name=((custom&&files.length===1)?custom:stripExt(f.name)).trim().slice(0,120)||'Documento';
+    await dbPut('blobs',{id,data:await encryptBuf(buf)});
+    if(ext!=='pdf'){const t=await makeThumb(buf,mimeOf(ext));if(t)await dbPut('blobs',{id:'t_'+id,data:await encryptBuf(t)})}
+    const meta={id,userId:S.user.id,name,origName:f.name,categoryId:catId,issueDate:issue||'',createdAt:Date.now(),ext,mime:mimeOf(ext),size:f.size,hash};
+    await dbPut('docs',meta);S.docs.push(meta);await addLog('envio',`${name}.${ext} • ${catName(catId)}`);ok++;
+  }
+  return ok;
+}
+
+/* ---------- ver / editar / baixar / excluir ---------- */
+async function viewDoc(id){
+  const d=docById(id);if(!d)return;
+  const url=URL.createObjectURL(new Blob([await readDoc(id)],{type:d.mime}));
+  const body=d.ext==='pdf'?`<iframe class="pv" src="${url}" title="Prévia de ${esc(d.name)}"></iframe><p><a class="btn" href="${url}" target="_blank" rel="noopener">Abrir em nova aba</a></p>`:`<img class="pv img" src="${url}" alt="${esc(d.name)}">`;
+  modal(d.name,`${body}<p class="note">${esc(catName(d.categoryId))} • Emissão: ${fmtDate(d.issueDate)} • Enviado em ${fmtTs(d.createdAt)} • ${fmtSize(d.size)}</p>`,{wide:true,onClose:()=>URL.revokeObjectURL(url)});
+}
+function editDoc(id){
+  const d=docById(id);if(!d)return;
+  const m=modal('Renomear / editar',`<form class="form"><label>Nome<input id="en" maxlength="120" required value="${esc(d.name)}"></label><label>Categoria<select id="ec">${sortedCats().map(c=>`<option value="${c.id}" ${c.id===d.categoryId?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label><label>Data de emissão<input type="date" id="ed" value="${d.issueDate}"></label><div class="row end"><button type="button" class="btn" data-no>Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
+  $('[data-no]',m).onclick=()=>m.close();
+  $('form',m).onsubmit=async e=>{e.preventDefault();const old=d.name;
+    d.name=$('#en',m).value.trim();d.categoryId=$('#ec',m).value;d.issueDate=$('#ed',m).value;
+    await dbPut('docs',d);await addLog('edição',old!==d.name?`${old} → ${d.name}`:d.name);m.close();renderView();toast('Documento atualizado.','ok')};
+}
+async function downloadDoc(id){
+  const d=docById(id);const blob=new Blob([await readDoc(id)],{type:d.mime});saveBlob(blob,`${safeName(d.name)}.${d.ext}`);await addLog('download',`${d.name}.${d.ext}`);
+}
+function saveBlob(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+async function removeDoc(id){await dbDel('blobs',id);await dbDel('blobs','t_'+id);await dbDel('docs',id);const t=thumbCache.get(id);if(t){URL.revokeObjectURL(t);thumbCache.delete(id)}S.sel.delete(id)}
+async function deleteDoc(id){
+  const d=docById(id);if(!d)return;
+  if(!(await confirmBox(`Tem certeza que quer excluir "${d.name}"?`)))return;
+  await removeDoc(id);await addLog('exclusão',`${d.name}.${d.ext}`);await loadData();renderView();toast('Documento excluído.','ok');
+}
+async function deleteSelected(){
+  const ids=[...S.sel];if(!ids.length)return;
+  if(!(await confirmBox(`Tem certeza que quer excluir ${ids.length} documento(s) selecionado(s)?`)))return;
+  for(const id of ids){const d=docById(id);await removeDoc(id);await addLog('exclusão',d?`${d.name}.${d.ext}`:id)}
+  await loadData();renderView();toast('Documentos excluídos.','ok');
+}
+
+/* ---------- marca-d'água e conversões ---------- */
+const canvasBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+function drawWatermark(ctx,w,h,text){
+  const fs=Math.max(16,Math.round(Math.min(w,h)/28));
+  ctx.save();ctx.font=`600 ${fs}px Arial, Helvetica, sans-serif`;ctx.textBaseline='middle';
+  const tw=ctx.measureText(text).width,diag=Math.hypot(w,h),sx=tw+fs*3,sy=fs*5;
+  ctx.translate(w/2,h/2);ctx.rotate(-Math.PI/6);ctx.lineWidth=Math.max(2,fs/8);
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.fillStyle='rgba(60,60,60,.38)';
+  let row=0;for(let y=-diag/2;y<diag/2;y+=sy,row++)for(let x=-diag/2-(row%2?sx/2:0);x<diag/2;x+=sx){ctx.strokeText(text,x,y);ctx.fillText(text,x,y)}
+  ctx.restore();
+}
+async function watermarkImage(buf,mime,text){
+  const bmp=await createImageBitmap(new Blob([buf],{type:mime}));
+  const c=document.createElement('canvas');c.width=bmp.width;c.height=bmp.height;const x=c.getContext('2d');
+  if(mime==='image/jpeg'){x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height)}
+  x.drawImage(bmp,0,0);drawWatermark(x,c.width,c.height,text);return canvasBlob(c,mime,.92);
+}
+async function imageToPdf(buf,mime,text){
+  const bmp=await createImageBitmap(new Blob([buf],{type:mime}));
+  const c=document.createElement('canvas');c.width=bmp.width;c.height=bmp.height;const x=c.getContext('2d');
+  x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bmp,0,0);if(text)drawWatermark(x,c.width,c.height,text);
+  const jb=await (await canvasBlob(c,'image/jpeg',.92)).arrayBuffer();
+  const pdf=await PDFLib.PDFDocument.create();const img=await pdf.embedJpg(jb);
+  const land=bmp.width>bmp.height,PW=land?841.89:595.28,PH=land?595.28:841.89,M=24;
+  const sc=Math.min((PW-2*M)/img.width,(PH-2*M)/img.height),w=img.width*sc,h=img.height*sc;
+  pdf.addPage([PW,PH]).drawImage(img,{x:(PW-w)/2,y:(PH-h)/2,width:w,height:h});
+  return pdf.save();
+}
+async function watermarkPdf(buf,text){
+  const {PDFDocument,StandardFonts,rgb,degrees}=PDFLib;
+  const pdf=await PDFDocument.load(buf,{ignoreEncryption:true});
+  const font=await pdf.embedFont(StandardFonts.HelveticaBold);
+  const safe=[...text].map(ch=>{try{font.encodeText(ch);return ch}catch{return'?'}}).join('');
+  for(const page of pdf.getPages()){
+    const {width:w,height:h}=page.getSize(),size=Math.max(10,Math.min(w,h)/36),tw=font.widthOfTextAtSize(safe,size),sx=tw+size*3,sy=size*5;
+    let row=0;for(let y=-tw*.5;y<h+tw*.5;y+=sy,row++)for(let x=-tw-(row%2?sx/2:0);x<w;x+=sx)page.drawText(safe,{x,y,size,font,color:rgb(.25,.25,.25),opacity:.3,rotate:degrees(30)});
+  }
+  return pdf.save();
+}
+let pdfjsReady=false;
+async function pdfToImages(buf,text){
+  if(!window.pdfjsLib)throw new Error('pdf.js não carregou (sem internet?)');
+  if(!pdfjsReady){const t=await (await fetch(PDFJS_WORKER)).text();pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([t],{type:'text/javascript'}));pdfjsReady=true}
+  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;const out=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const p=await pdf.getPage(i),v0=p.getViewport({scale:1}),sc=Math.min(2,3000/Math.max(v0.width,v0.height)),vp=p.getViewport({scale:sc});
+    const c=document.createElement('canvas');c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);const x=c.getContext('2d');
+    x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await p.render({canvasContext:x,viewport:vp}).promise;
+    if(text)drawWatermark(x,c.width,c.height,text);out.push(await canvasBlob(c,'image/png'));
+  }
+  pdf.destroy&&pdf.destroy();return out;
+}
+
+/* ---------- exportação ---------- */
+function openExport(){
+  if(!S.sel.size){toast('Selecione ao menos um documento.','err');return}
+  const m=modal('Exportar documentos',`<form id="exf" class="form"><div><h3 style="font-size:15px;margin-bottom:6px">Confira a seleção (<span id="exn"></span>)</h3><ul class="mini" id="exlist" style="max-height:220px;overflow:auto"></ul></div>
+  <fieldset><legend>Formato</legend>
+  <label class="inline"><input type="radio" name="fmt" value="orig" checked> Original (como enviado)</label>
+  <label class="inline"><input type="radio" name="fmt" value="pdf"> PDF (imagens viram PDF)</label>
+  <label class="inline"><input type="radio" name="fmt" value="img"> Imagem (PDFs viram PNG, uma por página)</label>
+  <label class="inline"><input type="radio" name="fmt" value="both"> Imagem e PDF</label></fieldset>
+  <label class="inline"><input type="checkbox" id="exwm" checked> Aplicar marca-d’água nas cópias exportadas</label>
+  <div id="wmbox" class="form"><label>Destinatário / uso <small>(opcional)</small><input id="exdest" maxlength="80" placeholder="Para uso da Empresa X"></label><label>Finalidade de uso<input id="exfin" maxlength="100" placeholder="dados necessários do RH"></label><div class="wm">Prévia: <b id="wmprev"></b></div></div>
+  <p class="note">Os originais guardados no cofre não são alterados. ZIP: doc_${esc(slug(S.user.name))}_${todayISO()}.zip</p>
+  <p id="exprog" class="note" role="status"></p>
+  <div class="row end"><button type="button" class="btn" data-no>Cancelar</button><button class="btn primary" id="exgo">Gerar ZIP</button></div></form>`,{wide:true});
+  const drawList=()=>{const ds=[...S.sel].map(docById).filter(Boolean).sort((a,b)=>cmp(a.name,b.name));
+    if(!ds.length){m.close();return}
+    $('#exn',m).textContent=ds.length;
+    $('#exlist',m).innerHTML=ds.map(d=>`<li><div class="thumb" ${d.ext!=='pdf'?`data-thumb="${d.id}"`:''}>${d.ext==='pdf'?'PDF':'…'}</div><span>${esc(d.name)}.${d.ext}</span><button type="button" class="btn sm" data-rm="${d.id}" aria-label="Remover ${esc(d.name)} da seleção">✕</button></li>`).join('');loadThumbs($('#exlist',m))};
+  drawList();
+  $('#exlist',m).onclick=e=>{const id=e.target.closest('[data-rm]')?.dataset.rm;if(id){S.sel.delete(id);drawList();updateSelBar()}};
+  const wmText=()=>{const dest=$('#exdest',m).value.trim(),fin=$('#exfin',m).value.trim();return `${fmtDate(todayISO())} — ${dest?dest+' — ':''}Finalidade: ${fin||'…'}`};
+  const upd=()=>{$('#wmbox',m).style.display=$('#exwm',m).checked?'':'none';$('#wmprev',m).textContent=wmText()};
+  ['#exwm','#exdest','#exfin'].forEach(s=>$(s,m).addEventListener('input',upd));upd();
+  $('[data-no]',m).onclick=()=>m.close();
+  $('#exf',m).onsubmit=async e=>{e.preventDefault();
+    const wm=$('#exwm',m).checked;if(wm&&!$('#exfin',m).value.trim()){toast('Informe a finalidade de uso para a marca-d’água.','err');$('#exfin',m).focus();return}
+    $('#exgo',m).disabled=true;
+    try{await runExport({fmt:m.querySelector('[name=fmt]:checked').value,text:wm?wmText():null},m)}
+    catch(err){console.error(err);toast('Falha na exportação: '+err.message,'err');$('#exgo',m).disabled=false}
+  };
+}
+async function runExport({fmt,text},m){
+  if(!window.JSZip||!window.PDFLib)throw new Error('bibliotecas não carregaram (sem internet?)');
+  const docs=[...S.sel].map(docById).filter(Boolean).sort((a,b)=>cmp(a.name,b.name));
+  const zip=new JSZip(),used=new Set(),files=[],errors=[];
+  const add=(base,ext,data)=>{let n=1,name=`${base}.${ext}`;while(used.has(name.toLowerCase())){n++;name=`${base}_${n}.${ext}`}used.add(name.toLowerCase());zip.file(name,data);files.push(name)};
+  let i=0;
+  for(const d of docs){
+    i++;$('#exprog',m).textContent=`Processando ${i} de ${docs.length}: ${d.name}…`;
+    try{
+      const buf=await readDoc(d.id),iso=docDate(d),base=`${iso.slice(0,7)}_${camel(catName(d.categoryId))}_${safeName(d.name)}`,isPdf=d.ext==='pdf';
+      const want=fmt==='orig'?['orig']:fmt==='pdf'?[isPdf?'orig':'pdf']:fmt==='img'?[isPdf?'img':'orig']:['orig',isPdf?'img':'pdf'];
+      for(const w of want){
+        if(w==='orig'){
+          if(!text)add(base,d.ext,buf);
+          else if(isPdf)add(base,'pdf',await watermarkPdf(buf,text));
+          else add(base,d.ext,await watermarkImage(buf,d.mime,text));
+        }else if(w==='pdf')add(base,'pdf',await imageToPdf(buf,d.mime,text));
+        else{const imgs=await pdfToImages(buf,text);imgs.forEach((b,k)=>add(imgs.length>1?`${base}_p${k+1}`:base,'png',b))}
+      }
+    }catch(err){console.error(err);errors.push(`${d.name}: ${err.message}`)}
+  }
+  if(!files.length)throw new Error('nenhum arquivo pôde ser gerado. '+(errors[0]||''));
+  const zipName=`doc_${slug(S.user.name)}_${todayISO()}.zip`;
+  zip.file('relacao_exportacao.txt',[`Cofre Digital v${APP_VERSION} — exportação de ${fmtTs(Date.now())}`,`Usuário: ${S.user.name}`,`Marca-d'água: ${text||'não aplicada'}`,'',...files.map(f=>'- '+f),...(errors.length?['','Não exportados:',...errors.map(x=>'- '+x)]:[])].join('\n'));
+  const blob=await zip.generateAsync({type:'blob'},meta=>{$('#exprog',m).textContent=`Compactando… ${Math.round(meta.percent)}%`});
+  await addLog('exportação',`${docs.length} doc(s) → ${zipName} • ${text?'marca-d’água: '+text:'sem marca-d’água'}`);
+  m.close();
+  const url=URL.createObjectURL(blob);
+  modal('Exportação concluída',`<p><b>${files.length}</b> arquivo(s) de <b>${docs.length}</b> documento(s) em <b>${esc(zipName)}</b> (${fmtSize(blob.size)}).</p><p class="note">${text?'Marca-d’água aplicada: '+esc(text):'Exportado sem marca-d’água.'}</p>${errors.length?`<p class="err">Não exportados:<br>${errors.map(esc).join('<br>')}</p>`:''}<ul class="mini" style="max-height:180px;overflow:auto">${files.map(f=>`<li><span>${esc(f)}</span></li>`).join('')}</ul><div class="row end" style="margin-top:12px"><a class="btn primary" href="${url}" download="${esc(zipName)}">Baixar ZIP</a></div>`,{onClose:()=>URL.revokeObjectURL(url)});
+}
+
+/* ---------- backup ---------- */
+async function makeBackup(){
+  if(!window.JSZip)throw new Error('JSZip não carregou');
+  const zip=new JSZip(),u=S.user;
+  zip.file('meta.json',JSON.stringify({app:'Cofre Digital',version:APP_VERSION,at:Date.now(),user:{id:u.id,name:u.name,salt:b64(u.salt),verifier:b64(u.verifier),created:u.created},cats:S.cats,docs:S.docs}));
+  for(const d of S.docs){const b=await dbGet('blobs',d.id);if(b)zip.file(`arquivos/${d.id}.bin`,b.data);const t=await dbGet('blobs','t_'+d.id);if(t)zip.file(`arquivos/t_${d.id}.bin`,t.data)}
+  saveBlob(await zip.generateAsync({type:'blob'}),`backup_cofre_${slug(u.name)}_${todayISO()}.zip`);
+  await addLog('backup','Backup baixado');
+}
+async function restoreBackup(file){
+  if(!window.JSZip)throw new Error('JSZip não carregou');
+  const zip=await JSZip.loadAsync(file),mf=zip.file('meta.json');if(!mf)throw new Error('arquivo de backup inválido');
+  const meta=JSON.parse(await mf.async('string')),u=meta.user;
+  if(S.user&&S.user.id!==u.id)throw new Error('este backup é de outro usuário');
+  if(!(await dbGet('users',u.id)))await dbPut('users',{id:u.id,name:u.name,salt:ub64(u.salt),verifier:ub64(u.verifier),created:u.created});
+  for(const c of meta.cats)if(!(await dbGet('cats',c.id)))await dbPut('cats',{...c,userId:u.id});
+  let n=0;
+  for(const d of meta.docs){
+    if(await dbGet('docs',d.id))continue;const f=zip.file(`arquivos/${d.id}.bin`);if(!f)continue;
+    await dbPut('blobs',{id:d.id,data:await f.async('arraybuffer')});
+    const t=zip.file(`arquivos/t_${d.id}.bin`);if(t)await dbPut('blobs',{id:'t_'+d.id,data:await t.async('arraybuffer')});
+    await dbPut('docs',{...d,userId:u.id});n++;
+  }
+  if(S.user){await loadData();await addLog('restauração',`${n} documento(s) restaurado(s)`);renderView();toast(`${n} documento(s) restaurado(s).`,'ok')}
+  else{S.authMode='login';await renderAuth();toast(`Backup restaurado (${n} documento(s)). Entre com a senha original.`,'ok')}
+}
+$('#restf').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{await restoreBackup(f)}catch(err){console.error(err);toast('Falha ao restaurar: '+err.message,'err')}});
+
+/* ---------- apagar tudo ---------- */
+function eraseAll(){
+  const m=modal('Apagar todos os dados',`<form class="form"><p>Isto apaga <b>todos</b> os documentos, categorias, registros e a conta <b>${esc(S.user.name)}</b> deste aparelho, sem volta.</p><label>Digite APAGAR para confirmar<input id="erw" autocomplete="off"></label><div class="row end"><button type="button" class="btn" data-no>Cancelar</button><button class="btn danger">Apagar tudo</button></div></form>`);
+  $('[data-no]',m).onclick=()=>m.close();
+  $('form',m).onsubmit=async e=>{e.preventDefault();if($('#erw',m).value!=='APAGAR'){toast('Digite APAGAR exatamente assim.','err');return}
+    const uid_=S.user.id;for(const d of S.docs){await dbDel('blobs',d.id);await dbDel('blobs','t_'+d.id);await dbDel('docs',d.id)}
+    for(const c of S.cats)await dbDel('cats',c.id);for(const l of await dbByUser('log',uid_))await dbDel('log',l.id);await dbDel('users',uid_);
+    m.close();lock();toast('Todos os dados foram apagados.','ok')};
+}
+
+/* ---------- cliques ---------- */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,id=b.dataset.id;
+  try{switch(a){
+    case'tab':go(b.dataset.tab);break;
+    case'upload':openUpload();break;
+    case'lock':lock();break;
+    case'view':await viewDoc(id);break;
+    case'edit':editDoc(id);break;
+    case'download':await downloadDoc(id);break;
+    case'delete':await deleteDoc(id);break;
+    case'delsel':await deleteSelected();break;
+    case'catopen':S.filters={q:'',cat:id,fmt:'',from:'',to:'',dt:'emissao'};go('docs');break;
+    case'clearf':S.filters={q:'',cat:'',fmt:'',from:'',to:'',dt:'emissao'};viewDocs($('#view'));break;
+    case'selall':filtered().forEach(d=>S.sel.add(d.id));renderList();break;
+    case'selclear':S.sel.clear();renderList();break;
+    case'export':openExport();break;
+    case'authmode':S.authMode=b.dataset.mode;renderAuth();break;
+    case'restore':$('#restf').click();break;
+    case'backup':await makeBackup();toast('Backup gerado.','ok');break;
+    case'erase':eraseAll();break;
+    case'rencat':{const c=S.cats.find(x=>x.id===id);const n=await promptBox('Renomear categoria','Nome da categoria',c.name);
+      if(n){if(S.cats.some(x=>x.id!==id&&norm(x.name)===norm(n))){toast('Já existe categoria com esse nome.','err');break}
+        const old=c.name;c.name=n;await dbPut('cats',c);await addLog('categoria',`${old} → ${n}`);renderView()}break}
+    case'delcat':{const c=S.cats.find(x=>x.id===id);
+      if(S.docs.some(d=>d.categoryId===id)){toast('Há documentos nesta categoria. Mova-os (Renomear / editar) antes de excluir.','err');break}
+      if(await confirmBox(`Tem certeza que quer excluir a categoria "${c.name}"?`)){await dbDel('cats',id);await addLog('categoria',`Excluída: ${c.name}`);await loadData();renderView()}break}
+  }}catch(err){console.error(err);toast('Algo deu errado: '+err.message,'err')}
+});
+
+/* ---------- início ---------- */
+(async()=>{
+  if(!window.crypto?.subtle||!window.indexedDB){$('#app').innerHTML='<div class="auth"><div class="card"><h2>Navegador não compatível</h2><p>Abra o Cofre Digital em um navegador atual, por HTTPS ou arquivo local, com suporte a criptografia e armazenamento local.</p></div></div>';return}
+  db=await openDB();render();
+})();
+</script>
+</body>
+</html>

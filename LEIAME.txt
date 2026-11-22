@@ -1,4 +1,4 @@
-FÊNIX | COFRE DIGITAL — v1.3
+FÊNIX | COFRE DIGITAL — v1.4
 Fênix Soluções Tecnológicas
 
 ESTRUTURA
@@ -6,7 +6,7 @@ ESTRUTURA
   manifest.json   Manifesto do PWA
   sw.js           Service worker (funcionamento offline)
   LEIAME.txt      Este arquivo
-  icone/          Ícones do aplicativo (provisórios: trocar pelos oficiais da biblioteca Fênix)
+  icone/          Ícone oficial do Cofre Digital (any, maskable e apple-touch)
   manual/         Manual do usuário (MD e PDF)
   versoes/        Cópia do aplicativo com a versão no nome
 

@@ -10,16 +10,28 @@
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "icone/icon-192.png",
+      "src": "icone/Fenix_Icone_192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icone/icon-512.png",
+      "src": "icone/Fenix_Icone_512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icone/Fenix_Icone_Maskable_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icone/Fenix_Icone_Maskable_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

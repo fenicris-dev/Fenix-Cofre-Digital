@@ -1,0 +1,25 @@
+FÊNIX | COFRE DIGITAL — v1.3
+Fênix Soluções Tecnológicas
+
+ESTRUTURA
+  index.html      Aplicativo (arquivo único, sem dependências externas)
+  manifest.json   Manifesto do PWA
+  sw.js           Service worker (funcionamento offline)
+  LEIAME.txt      Este arquivo
+  icone/          Ícones do aplicativo (provisórios: trocar pelos oficiais da biblioteca Fênix)
+  manual/         Manual do usuário (MD e PDF)
+  versoes/        Cópia do aplicativo com a versão no nome
+
+COMO PUBLICAR
+  Envie o conteúdo da raiz e as pastas icone/, manual/ e versoes/ para o repositório
+  do app (GitHub Pages). O PWA só instala em HTTPS.
+
+GOOGLE DRIVE (opcional)
+  Crie um ID de cliente OAuth (Aplicativo da Web, escopo drive.file) no Google Cloud
+  e cadastre como URI de redirecionamento o endereço exato do index.html publicado.
+  O ID pode ser fixado na constante GOOGLE_CLIENT_ID dentro do index.html, ou o
+  usuário informa em Ajustes. Passo a passo no manual.
+
+ARMAZENAMENTO
+  Modelo "meios do cliente": nada é enviado à Fênix. Este app não usa o fenix-core.js.
+  Sem destino conectado, os dados ficam só no aparelho (IndexedDB, criptografados).
